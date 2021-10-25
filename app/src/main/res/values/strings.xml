@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Vocabulary</string>
+    <string name="input_hint">请输入要查询的单词</string>
+</resources>
