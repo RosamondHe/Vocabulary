@@ -5,25 +5,23 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DictDataBaseHelper extends SQLiteOpenHelper {
+public class DictDBHelper extends SQLiteOpenHelper {
     public Context mContext=null;
     public String tableName=null;
     public static int VERSION=1;
-    public DictDataBaseHelper(Context context, String name, CursorFactory factory,
-                              int version) {
+    public DictDBHelper(Context context, String name, CursorFactory factory, int version) {
         super(context, name, factory, version);
-        // TODO Auto-generated constructor stub
         mContext=context;
         tableName=name;
     }
 
-    public DictDataBaseHelper(Context context, String name, CursorFactory factory){
+    public DictDBHelper(Context context, String name, CursorFactory factory){
         this(context,name,factory,VERSION);
         mContext=context;
         tableName=name;
     }
 
-    public DictDataBaseHelper(Context context, String name){
+    public DictDBHelper(Context context, String name){
         this(context,name,null);
         mContext=context;
         tableName=name;
@@ -31,15 +29,12 @@ public class DictDataBaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // TODO Auto-generated method stub
-        db.execSQL("create table dict(word text,pse text,prone text,psa text,prona text," +
-                "interpret text, sentorig text, senttrans text)");
-
+        //创建一个表，各个列标签
+        db.execSQL("create table dict(word, pse, prone, psa, prona, meaning, sentorig, senttrans)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
-        // TODO Auto-generated method stub
 
     }
 

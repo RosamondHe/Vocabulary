@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+//把对应的音频Mp3存储在本地的一个文件夹，这样当再遇到这个单词时就不用再访问网络了
 public class FileUtils {
 
     private String SDPATH; //SD卡中的路径
@@ -19,16 +20,15 @@ public class FileUtils {
     }
 
     //直接创建文件即可，无需考虑文件夹有没有创建,若文件已存在返回null
-    public File createSDFile(String path, String fileName){
+    public File createFile(String path, String fileName){
         File file=null;
-        createSDDir(path);
+        createDir(path);
         try{
             file=new File(SDPATH+path+fileName);
-            if(file.exists() && file.isFile()){
+            if(file.exists() && file.isFile()){ //文件存在
                 return null;
             }
             file.createNewFile();  //创建文件
-
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -36,7 +36,7 @@ public class FileUtils {
     }
 
     //创建目录,如果存在同名文件夹则返回该文件夹，否则创建文件
-    public File createSDDir(String dirName){
+    public File createDir(String dirName){
         File dir=new File(SDPATH+dirName);
         if(dir.exists() && dir.isDirectory()){
             return dir;
@@ -60,7 +60,7 @@ public class FileUtils {
     }
 
     //判断SD卡文件夹是否存在
-    public boolean isFileExist(String path,String fileName){
+    public boolean isExist(String path,String fileName){
         File file=new File(SDPATH+path+fileName);
         return file.exists();
     }
@@ -74,44 +74,32 @@ public class FileUtils {
         try {
             input=new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch bloc
             e.printStackTrace();
             return null;
         }
-
         return input;
     }
 
-    /**
-     *
-     * @param in
-     * @param path  文件存储的相对路径
-     * @param fileName
-     * @return
-     */
     public boolean saveInputStreamToFile(InputStream in, String path,String fileName ){
-        File file=createSDFile(path,fileName); //相对路径即可
-        int length=0;
+        File file=createFile(path,fileName); //相对路径即可
+        int length;
         if(file==null)
             return true;  //其实这里的情况是文件已存在
         byte[] buffer=new byte[1024];
-        FileOutputStream fOut=null;
+        FileOutputStream output=null;
         try {
-            fOut=new FileOutputStream(file);
-
-            while((length=in.read(buffer))!=-1){          //要利用read返回的实际成功读取的字节数，将buffer写入文件，否则将会出现错误的字节
-                fOut.write(buffer, 0, length);
+            output=new FileOutputStream(file);
+            //要利用read返回的实际成功读取的字节数，将buffer写入文件，否则将会出现错误的字节
+            while((length=in.read(buffer))!=-1){
+                output.write(buffer, 0, length);
             }
-
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
         }finally{
             try {
-                fOut.close();
+                output.close();
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
                 return false;
             }
@@ -120,17 +108,16 @@ public class FileUtils {
     }
 
 
-    public String getSDRootPath(){
+    public String getRootPath(){
         return Environment.getExternalStorageDirectory().getAbsolutePath()+"/";
     }
 
-    public String getSDPATH() {
+    public String getPATH() {
         return SDPATH;
     }
 
-    public void setSDPATH(String sDPATH) {
+    public void setPATH(String sDPATH) {
         SDPATH = sDPATH;
     }
-
 
 }

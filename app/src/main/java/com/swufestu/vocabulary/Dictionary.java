@@ -1,77 +1,64 @@
 package com.swufestu.vocabulary;
 
-import java.io.BufferedReader;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-
-import java.util.LinkedList;
-
-import org.xml.sax.InputSource;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 
-import com.swufestu.vocabulary.DictDataBaseHelper;
-import com.swufestu.vocabulary.NetOperator;
-import com.swufestu.vocabulary.JinShanContentHandler;
-import com.swufestu.vocabulary.XMLParser;
-import com.swufestu.vocabulary.FileUtils;
+import org.xml.sax.InputSource;
 
-public class Dict {
-    public Context context=null;
-    public String tableName=null;
-    private DictDataBaseHelper dbHelper=null;
-    private SQLiteDatabase dbR=null,dbW=null;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URLEncoder;
+
+public class Dictionary {
+    public Context context;
+    public String tableName;
+    private DictDBHelper dbHelper;
+    private SQLiteDatabase dbR, dbW;
 
 
-    public Dict(Context context,String tableName){
+    public Dictionary(Context context,String tableName){
         this.context=context;
         this.tableName=tableName;
-        dbHelper=new DictDataBaseHelper(context, tableName);     //这里要用到前面的DataBaseHelper类，在Dict的构造方法中实例化该类，
-        //并且调用下面两个方法获得dbR和dbW,用于完成对数据库的增删改查操作。
-        //这里吧dbR dbW作为成员变量目的是避免反复实例化dbR  dbW造成数据库指针泄露。
-
+        dbHelper=new DictDBHelper(context, tableName);  //这里要用到前面的DictDBHelper类，在构造方法中实例化该类，
+        //调用下面两个方法获得dbR和dbW,用于完成对数据库的增删改查操作。
+        //dbR dbW作为成员变量目的：避免反复实例化造成数据库指针泄露。
         dbR=dbHelper.getReadableDatabase();
         dbW=dbHelper.getWritableDatabase();
-
     }
 
+    //在该对象销毁时，释放dbR和dbW
     @Override
-    protected void finalize() throws Throwable {      //在该对象销毁时，释放dbR和dbW
-        // TODO Auto-generated method stub
+    protected void finalize() throws Throwable {
         dbR.close();
         dbW.close();
         dbHelper.close();
         super.finalize();
-
     }
-    //将包含单词信息的WordValue对象添加进数据库，这里使用了dbW的insert方法，需要创建一个ContentValue对象存放键值对
-    public void insertWordToDict(WordValue w, boolean isOverWrite){
-        if(w==null){          //避免空指针异常
+
+    //将包含单词信息的WordValue对象添加进数据库，这里使用了dbW的insert方法，需要创建一个ContentValues对象存放键值对
+    public void insertWordToDict(WordMessage wordmessage, boolean isOverWrite){
+        //避免空指针异常
+        if(wordmessage==null){
             return;
         }
-        Cursor cursor=null;
+        Cursor cursor=null; //游标
         try{
             ContentValues values=new ContentValues();
-            values.put("word",w.getWord() );
-            values.put("pse", w.getPsE());
-            values.put("prone",w.getPronE());
-            values.put("psa", w.getPsA());
-            values.put("prona", w.getPronA());
-            values.put("interpret",w.getInterpret());
-            values.put("sentorig", w.getSentOrig());
-            values.put("senttrans", w.getSentTrans());
+            values.put("word",wordmessage.getWord() );
+            values.put("pse", wordmessage.getPsE());
+            values.put("prone",wordmessage.getPronE());
+            values.put("psa", wordmessage.getPsA());
+            values.put("prona", wordmessage.getPronA());
+            values.put("meaning",wordmessage.getMeaning());
+            values.put("sentorig", wordmessage.getSentOrig());
+            values.put("senttrans", wordmessage.getSentTrans());
             cursor=dbR.query(tableName, new String[]{"word"}, "word=?", new String[]{w.getWord()}, null, null, null);
             if(cursor.getCount()>0){
                 if(isOverWrite==false)//首先看看数据库中有没有这个单词，若词典库中已经有了这一个单词，所以不再操作
                     return;
-                else{              //执行更新操作
+                else{ //执行更新操作
                     dbW.update(tableName, values, "word=?",new String[]{ w.getWord()});
                 }
             }else{
@@ -108,8 +95,8 @@ public class Dict {
     }
 
     //从单词库中获得某个单词的信息，如果词库中没有改单词，那么返回null
-    public WordValue getWordFromDict(String searchedWord){
-        WordValue w=new WordValue();//预防空指针异常
+    public WordMessage getWordFromDict(String searchedWord){
+        WordMessage w=new WordMessage();//预防空指针异常
 //        db.execSQL("create table dict(word text,pse text,prone text,psa text,prona text," +
 //                "interpret text, sentorig text, senttrans text)");
         String[] columns=new String[]{"word",
@@ -122,15 +109,15 @@ public class Dict {
                 strArray[i]=cursor.getString(cursor.getColumnIndex(columns[i]));
 
             }
-            w=new WordValue(strArray[0],strArray[1],strArray[2],strArray[3],strArray[4],strArray[5],strArray[6],strArray[7]);
+            w=new WordMessage(strArray[0],strArray[1],strArray[2],strArray[3],strArray[4],strArray[5],strArray[6],strArray[7]);
         }
         cursor.close();
         return w;
     }
 
     //从网络查找某个单词，并且返回一个含有单词信息的WordValue对象，这个方法在第二讲的最后提过
-    public WordValue getWordFromInternet(String searchedWord){
-        WordValue wordValue=null;
+    public WordMessage getWordFromInternet(String searchedWord){
+        WordMessage wordValue=null;
         String tempWord=searchedWord;
         if(tempWord==null&& tempWord.equals(""))
             return null;
@@ -146,9 +133,9 @@ public class Dict {
                 new FileUtils().saveInputStreamToFile(in, "", "gfdgf.txt");
                 XMLParser xmlParser=new XMLParser();
                 InputStreamReader reader=new InputStreamReader(in,"utf-8");
-                JinShanContentHandler contentHandler=new JinShanContentHandler();
-                xmlParser.parseJinShanXml(contentHandler, new InputSource(reader));
-                wordValue=contentHandler.getWordValue();
+                HandleContent contentHandler=new HandleContent();
+                xmlParser.parseJinshanXml(contentHandler, new InputSource(reader));
+                wordValue=contentHandler.getWordMessage();
                 wordValue.setWord(searchedWord);
             }
         }catch(Exception e){
@@ -225,5 +212,4 @@ public class Dict {
         return str;
 
     }
-
 }
