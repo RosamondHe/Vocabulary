@@ -11,7 +11,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#3F51B5"
+        android:background="#12B3FB"
         android:orientation="horizontal"
         android:paddingLeft="5dp"
         android:paddingTop="6dp"
@@ -41,7 +41,7 @@
             android:hint="@string/input_hint"
             android:inputType="textPersonName"
             android:paddingLeft="10dp"
-            android:textColor="#FFFFFF"
+            android:textColor="#000000"
             android:textSize="20sp" />
 
         <ImageButton
@@ -78,7 +78,7 @@
             android:id="@+id/word"
             android:layout_width="250dp"
             android:layout_height="match_parent"
-            android:layout_marginLeft="50dp"
+            android:layout_marginStart="50dp"
             android:text="word"
             android:textAlignment="textStart"
             android:textColor="#3F51B5"
@@ -89,12 +89,24 @@
             android:id="@+id/addwordlist"
             android:layout_width="45dp"
             android:layout_height="match_parent"
-            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
             android:textAlignment="center"
-            app:srcCompat="?attr/actionModePasteDrawable"
+            app:srcCompat="@drawable/ic_baseline_playlist_add_24"
             tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/openWordList"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginEnd="20dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitXY"
+            android:src="@drawable/open_word_list"
+            android:textAlignment="center" />
+
+
     </LinearLayout>
 
     <LinearLayout
@@ -113,8 +125,8 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginRight="10dp"
-            android:background="#3F51B5"
-            app:srcCompat="@android:drawable/ic_lock_silent_mode_off"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/ic_baseline_volume_up_24"
             tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
         <TextView
@@ -142,8 +154,8 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginRight="10dp"
-            android:background="#3F51B5"
-            app:srcCompat="@android:drawable/ic_lock_silent_mode_off"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/ic_baseline_volume_up_24"
             tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
         <TextView
@@ -157,13 +169,14 @@
 
     <TextView
         android:id="@+id/meaning_label"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="35dp"
+        android:background="#5AC7F8"
+        android:paddingLeft="50dp"
         android:text="· 译文结果"
-        android:textColor="#2196F3"
-        android:textSize="20sp"
+        android:textColor="#000000"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
 
@@ -184,13 +197,14 @@
 
     <TextView
         android:id="@+id/sentence_label"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
+        android:background="#5AC7F8"
+        android:paddingLeft="50dp"
         android:text="· 双语例句"
-        android:textColor="#2196F3"
-        android:textSize="20sp"
+        android:textColor="#000000"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/meaning" />
 

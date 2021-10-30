@@ -31,6 +31,7 @@ public class DictDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         //创建一个表，各个列标签
         db.execSQL("create table dict(word, pse, prone, psa, prona, meaning, sentorig, senttrans)");
+        db.execSQL("create table Notebook(word)");
     }
 
     @Override

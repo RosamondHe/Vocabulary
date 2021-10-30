@@ -4,8 +4,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+//SAX API中处理事件的接口
 public class HandleContent extends DefaultHandler {  //解析xml文件时的处理类
-    public WordMessage wordMessage=null; //单词的信息
+    public WordMessage wordMessage; //单词的信息
     private String tag=null; //标签名称
     private String interpret="";  //防止空指针异常，interpret由词性、词义组成
     private String orig=""; //英语例句

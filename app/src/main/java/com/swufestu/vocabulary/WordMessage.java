@@ -5,13 +5,14 @@ import java.io.StringReader;
 import java.util.ArrayList;
 
 public class WordMessage { //存放一个单词的信息
+
     //从XML文件中解析出来的各个元素
-    public String word=null,psE=null,pronE=null,psA=null,pronA=null, meaning=null,sentOrig=null,sentTrans=null;
+    public String word,psE,pronE,psA,pronA, meaning,sentOrig,sentTrans;
 
     public WordMessage(String word, String psE, String pronE, String psA, String pronA,
                        String meaning, String sentOrig, String sentTrans) {
         super();
-        this.word = ""+word;
+        this.word = ""+word;  //加上内容
         this.psE = ""+psE;
         this.pronE = ""+pronE;
         this.psA = ""+psA;
@@ -33,12 +34,14 @@ public class WordMessage { //存放一个单词的信息
         this.sentTrans = "";
     }
 
+    //ArrayList存储英文例句
     public ArrayList<String> getOrigList(){
         ArrayList<String> list = new ArrayList<String>();
+        //缓冲区读取内容，避免中文乱码
         BufferedReader br = new BufferedReader(new StringReader(this.sentOrig)); //字符串输入流，其本质就是字符串
         String str;
         try{
-            while((str=br.readLine())!=null){
+            while((str=br.readLine())!=null){  //str=读取一个文本行不为空
                 list.add(str);
             }
         }catch(Exception e){
@@ -47,6 +50,7 @@ public class WordMessage { //存放一个单词的信息
         return list;
     }
 
+    //ArrayList存储中文例句
     public ArrayList<String> getTransList(){
         ArrayList<String> list = new ArrayList<String>();
         BufferedReader br = new BufferedReader(new StringReader(this.sentTrans));
@@ -61,6 +65,7 @@ public class WordMessage { //存放一个单词的信息
         return list;
     }
 
+    //get和set
     public String getWord() {
         return word;
     }
@@ -125,14 +130,4 @@ public class WordMessage { //存放一个单词的信息
         this.sentTrans = sentTrans;
     }
 
-    public void printInfo(){
-        System.out.println(this.word);
-        System.out.println(this.psE);
-        System.out.println(this.pronE);
-        System.out.println(this.psA);
-        System.out.println(this.pronA);
-        System.out.println(this.meaning);
-        System.out.println(this.sentOrig);
-        System.out.println(this.sentTrans);
-    }
 }

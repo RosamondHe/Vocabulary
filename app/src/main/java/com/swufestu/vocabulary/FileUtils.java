@@ -15,7 +15,8 @@ public class FileUtils {
     private String SDPATH; //SD卡中的路径
 
     public FileUtils(){
-        SDPATH=Environment.getExternalStorageDirectory()+"/";  //存储目录
+        SDPATH=Environment.getExternalStorageDirectory()+"/";
+        //获取的是sd卡的内存位置，没有sd卡时是获取到手机的内存。（需要声明内存读写权限）
         //System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath());
     }
 
