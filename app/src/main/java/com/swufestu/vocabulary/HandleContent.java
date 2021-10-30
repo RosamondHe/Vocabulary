@@ -52,16 +52,16 @@ public class HandleContent extends DefaultHandler {  //解析xml文件时的处�
         }else if(tag=="pos"){
             interpret=interpret+str+" ";
         }else if(tag=="acceptation"){
-            interpret=interpret+str+"\n";
-            interpret=wordMessage.getMeaning()+interpret;
+            interpret=interpret+str+"\n";  //一行显示一个词性和对应词义
+            interpret=wordMessage.getMeaning()+interpret;  //空指针
             wordMessage.setMeaning(interpret);
             interpret=""; //初始化操作（可能有多个释义）
         }else if(tag=="orig"){
             orig=wordMessage.getSentOrig();
             wordMessage.setSentOrig(orig+str+"\n");
         }else if(tag=="trans"){
-            String temp=wordMessage.getSentTrans()+str+"\n";
-            wordMessage.setSentTrans(temp);
+            trans=wordMessage.getSentTrans();
+            wordMessage.setSentTrans(trans+str+"\n");
         }
     }
 
@@ -89,7 +89,7 @@ public class HandleContent extends DefaultHandler {  //解析xml文件时的处�
         super.endDocument();
         String interpret=wordMessage.getMeaning();
         if(interpret!=null && interpret.length()>0){
-            char[] strArray=interpret.toCharArray();
+            char[] strArray=interpret.toCharArray(); //将字符串对象中的字符转换为一个字符数组
             wordMessage.setMeaning(new String(strArray,0,interpret.length()-1));
             //去掉解释的最后一个换行符
         }
