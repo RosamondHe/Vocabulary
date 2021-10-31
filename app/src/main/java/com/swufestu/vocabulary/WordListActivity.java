@@ -38,7 +38,7 @@ public class WordListActivity extends AppCompatActivity {
                 i++;
                 text.setTextSize(20);
                 text.setTextColor(Color.BLACK);
-                text.setPadding(0,25,0,10);
+                text.setPadding(0,30,0,10);
                 text.setMinWidth(820);
                 text.setOnClickListener(v -> {
                     // 点击时，在主界面查询单词
