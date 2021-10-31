@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#E4F0FA"
     tools:context=".WordListActivity">
 
     <LinearLayout
@@ -16,25 +17,25 @@
             android:id="@+id/wltitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_marginTop="30dp"
             android:layout_marginBottom="30dp"
             android:text="我的单词本"
-            android:textColor="#000000"
             android:textAlignment="center"
-            android:layout_gravity="center"
+            android:textColor="#000000"
             android:textSize="24sp" />
 
         <LinearLayout
             android:id="@+id/wordList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
             android:divider="@color/black"
+            android:orientation="vertical"
             android:showDividers="middle">
 
         </LinearLayout>
-</LinearLayout>
+    </LinearLayout>
 
 </ScrollView>
