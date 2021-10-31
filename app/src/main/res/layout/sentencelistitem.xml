@@ -2,15 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
     android:paddingLeft="3dp"
-    android:paddingRight="3dp"
-    android:id="@+id/wordListItem">
+    android:paddingRight="3dp">
 
     <TextView
-        android:id="@+id/text_dict_sentence_list_item"
+        android:id="@+id/sentence_list_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"

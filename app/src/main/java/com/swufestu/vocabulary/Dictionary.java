@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 
 public class Dictionary {
     public Context context;
-    public String tableName;
+    public String tableName;  //数据库表名
     private DictDBHelper dbHelper;
     private SQLiteDatabase dbRead, dbWrite;
 
@@ -22,24 +22,15 @@ public class Dictionary {
     public Dictionary(Context context, String tableName) {
         this.context = context;
         this.tableName = tableName;
-        dbHelper = new DictDBHelper(context, tableName);  //这里要用到前面的DictDBHelper类，在构造方法中实例化该类，
-        //调用下面两个方法获得dbRead和dbWrite,用于完成对数据库的增删改查操作。
-        //dbRead dbWrite作为成员变量目的：避免反复实例化造成数据库指针泄露。
+        dbHelper = new DictDBHelper(context, tableName);  //这里要用到前面的DictDBHelper类，在构造方法中实例化该类
+        //调用下面两个方法获得dbRead和dbWrite,用于读写数据库
+        //dbRead dbWrite作为成员变量目的：避免反复实例化造成数据库指针泄露
         dbRead = dbHelper.getReadableDatabase();
         dbWrite = dbHelper.getWritableDatabase();
     }
 
-    //在该对象销毁时，释放dbR和dbW
-    @Override
-    protected void finalize() throws Throwable {
-        dbRead.close();
-        dbWrite.close();
-        dbHelper.close();
-        super.finalize();
-    }
-
     //将包含单词信息的WordMessage对象添加进数据库
-    // 使用dbWrite的insert方法，需要创建一个ContentValues对象存放键值对
+    //使用dbWrite的insert方法，创建一个ContentValues对象，类似一个map通过键值对的形式存储值
     public void insertWordToDictionary(WordMessage wordmessage, boolean isOverWrite) {
         //避免空指针异常
         if (wordmessage == null) {
@@ -66,7 +57,6 @@ public class Dictionary {
                     return;
                 else {                  //执行更新操作
                     dbWrite.update(tableName, values, "word=?", new String[]{wordmessage.getWord()});
-                    //values是一个ContentValues对象，类似一个map通过键值对的形式存储值
                 }
             } else {
                 dbWrite.insert(tableName, null, values); //插入新单词
@@ -98,7 +88,7 @@ public class Dictionary {
         }
     }
 
-    //从单词库中获得某个单词的信息，如果词库中没有改单词，那么返回null
+    //从单词库中获得某个单词的信息，如果词库中没有这个单词，那么返回null
     public WordMessage getWordFromDictionary(String wordToSearch) {
         WordMessage w = new WordMessage();//预防空指针异常
         String[] columns = new String[]{"word", "pse", "prone", "psa", "prona", "meaning", "sentorig", "senttrans"}; //列名
@@ -123,21 +113,21 @@ public class Dictionary {
             return null;
         char[] array = search.toCharArray();
         if (array[0] > 256)  //是中文，或其他语言的的简略判断
-            search = "_" + URLEncoder.encode(search);
+            search = "_" + URLEncoder.encode(search); //填入网址的部分
         //HttpURL中存在中文的话，会因为编码的问题产生乱码，所以先要对中文调用URLEncoder.encode()方法进行一下编码
         InputStream in;
         try {
             String tempUrl = NetOperator.iCiBaURL1 + search + NetOperator.iCiBaURL2; //单词xml网址
             in = NetOperator.getInputStreamByUrl(tempUrl);
             if (in != null) {
-                new FileUtils().saveInputStreamToFile(in, "", "vocabulary.txt");  //调用存储sd卡方法
+                //new FileUtils().saveInputStreamToFile(in, "", "vocabulary.txt");  //调用存储sd卡方法
                 XMLParser xmlParser = new XMLParser();
                 //InputStream是二进制字节流，必须先经过InputStreamReader包装成字符流在创建InputSource对象，否则会出现编码异常
                 InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
                 HandleContent contentHandler = new HandleContent();
                 xmlParser.parseJinshanXml(contentHandler, new InputSource(reader));
                 w2 = contentHandler.getWordMessage();
-                w2.setWord(wordToSearch);
+                //w2.setWord(wordToSearch);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -172,28 +162,13 @@ public class Dictionary {
         return str;
     }
 
-    //获取英音音标
-    public String getPse(String wordToSearch) {
-        Cursor cursor = dbRead.query(tableName, new String[]{"pse"}, "word=?", new String[]{wordToSearch}, null, null, null);
-        if (cursor.moveToNext() == false) {
-            cursor.close();
-            return null;
-        }
-        String str = cursor.getString(cursor.getColumnIndexOrThrow("pse"));
-        cursor.close();
-        return str;
+    //在该对象销毁时，释放dbR和dbW
+    @Override
+    protected void finalize() throws Throwable {
+        dbRead.close();
+        dbWrite.close();
+        dbHelper.close();
+        super.finalize();
     }
-
-    public String getPsa(String wordToSearch) {
-        Cursor cursor = dbRead.query(tableName, new String[]{"psa"}, "word=?", new String[]{wordToSearch}, null, null, null);
-        if (cursor.moveToNext() == false) {
-            cursor.close();
-            return null;
-        }
-        String str = cursor.getString(cursor.getColumnIndexOrThrow("psa"));
-        cursor.close();
-        return str;
-    }
-
 
 }

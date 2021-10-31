@@ -28,6 +28,7 @@
             android:layout_marginRight="20dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
+            android:onClick="backClick"
             app:srcCompat="@drawable/abc_vector_test"
             tools:ignore="SpeakableTextPresentCheck" />
 
@@ -50,6 +51,7 @@
             android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
+            android:onClick="clearClick"
             app:srcCompat="@android:drawable/ic_menu_close_clear_cancel"
             tools:ignore="SpeakableTextPresentCheck" />
 
@@ -59,6 +61,7 @@
             android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
+            android:onClick="searchClick"
             app:srcCompat="@android:drawable/ic_menu_search"
             tools:ignore="SpeakableTextPresentCheck" />
 
@@ -68,44 +71,21 @@
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
+        android:gravity="center_horizontal|center_vertical"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
         <TextView
             android:id="@+id/word"
-            android:layout_width="250dp"
-            android:layout_height="45dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="word"
-            android:textAlignment="textStart"
             android:textColor="#3F51B5"
             android:textSize="34sp"
             android:textStyle="bold" />
-
-        <ImageButton
-            android:id="@+id/addwordlist"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="20dp"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            app:srcCompat="@drawable/ic_baseline_playlist_add_24"
-            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-
-        <ImageButton
-            android:id="@+id/openWordList"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_baseline_menu_book_24"
-            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
-
 
     </LinearLayout>
 
@@ -113,7 +93,7 @@
         android:id="@+id/linearLayout3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -126,6 +106,7 @@
             android:layout_height="30dp"
             android:layout_marginRight="4dp"
             android:background="@android:color/transparent"
+            android:onClick="eplayClick"
             app:srcCompat="@drawable/ic_baseline_volume_up_24"
             tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
@@ -144,6 +125,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="4dp"
             android:background="@android:color/transparent"
+            android:onClick="aplayClick"
             app:srcCompat="@drawable/ic_baseline_volume_up_24"
             tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
@@ -160,7 +142,7 @@
         android:id="@+id/meaning_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
         android:background="#5AC7F8"
         android:text="· 译文结果 ·"
         android:textAlignment="center"
@@ -174,7 +156,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="6dp"
         android:layout_marginEnd="10dp"
         android:background="@drawable/rectangle_shape"
         android:lineSpacingMultiplier="1.2"
@@ -190,7 +172,7 @@
         android:id="@+id/sentence_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:background="#5AC7F8"
         android:text="· 双语例句 ·"
         android:textAlignment="center"
@@ -202,21 +184,57 @@
     <ListView
         android:id="@+id/sentence_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="6dp"
         android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/rectangle_shape"
         android:divider="#8C8C8C"
         android:dividerHeight="1px"
         android:minHeight="48dp"
         android:padding="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sentence_label"
         tools:ignore="TouchTargetSizeCheck">
 
     </ListView>
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageButton
+            android:id="@+id/addwordlist"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="80dp"
+            android:background="@android:color/transparent"
+            android:onClick="addClick"
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_baseline_playlist_add_24"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/openWordList"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:onClick="openClick"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_baseline_menu_book_24"
+            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,6 +3,8 @@ package com.swufestu.vocabulary;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,11 +15,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.swufestu.vocabulary.adapter.SentenceListAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,19 +42,19 @@ public class MainActivity extends AppCompatActivity {
     ImageButton aphonetic_btnButton;
 
     public Dictionary dictionary = null;
-    public mp3Player mp3player = null;
     public WordMessage wordmessage = null;
     public Handler dictHandler = null;
     public DictDBHelper notebookHelper = null;
+    public MediaPlayer mediaPlayer=null;
     public static String wordToSearch = null;
+    public final static int ENGLISH_ACCENT=0;
+    public final static int USA_ACCENT=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         initial();
-        setOnClickLis();
         new ThreadSearchWord().start();
     }
 
@@ -60,30 +62,29 @@ public class MainActivity extends AppCompatActivity {
     //获取控件
     public void initial() {
         //各个显示
-        wordText = (TextView) findViewById(R.id.word);  //单词
-        ephoneticText = (TextView) findViewById(R.id.ephonetic); //英音标
-        aphoneticText = (TextView) findViewById(R.id.aphonetic); //美音标
-        meaningText = (TextView) findViewById(R.id.meaning); //释义
-        sentence_listText = (ListView) findViewById(R.id.sentence_list);  //例句
+        wordText = findViewById(R.id.word);  //单词
+        ephoneticText = findViewById(R.id.ephonetic); //英音标
+        aphoneticText = findViewById(R.id.aphonetic); //美音标
+        meaningText = findViewById(R.id.meaning); //释义
+        sentence_listText = findViewById(R.id.sentence_list);  //例句
 
         //各个按钮
-        backButton = (ImageButton) findViewById(R.id.back);
-        searchButton = (ImageButton) findViewById(R.id.search);
-        clearButton = (ImageButton) findViewById(R.id.clear);
-        addWordlistButton = (ImageButton) findViewById(R.id.addwordlist);
+        backButton = findViewById(R.id.back);
+        searchButton = findViewById(R.id.search);
+        clearButton = findViewById(R.id.clear);
+        addWordlistButton = findViewById(R.id.addwordlist);
         openWordListButton = findViewById(R.id.openWordList);
-        ephonetic_btnButton = (ImageButton) findViewById(R.id.ephonetic_btn);
-        aphonetic_btnButton = (ImageButton) findViewById(R.id.aphonetic_btn);
+        ephonetic_btnButton = findViewById(R.id.ephonetic_btn);
+        aphonetic_btnButton = findViewById(R.id.aphonetic_btn);
 
         //输入
-        inputText = (EditText) findViewById(R.id.input);
+        inputText = findViewById(R.id.input);
         inputText.setOnEditorActionListener(new EditTextActionLis()); //监听
 
         //工具
         dictionary = new Dictionary(MainActivity.this, "dict");
-        mp3player = new mp3Player(MainActivity.this, "dict");
         notebookHelper = new DictDBHelper(MainActivity.this, "Notebook");
-        dictHandler = new Handler(Looper.getMainLooper());
+        dictHandler = new Handler(Looper.getMainLooper()); //需要刷新UI，就需要在主线程下跑用到主线程的looper
 
         //对wordToSearch进行初始化
         Intent intent = this.getIntent();
@@ -92,9 +93,7 @@ public class MainActivity extends AppCompatActivity {
             wordToSearch = "";
         //显示单词
         wordText.setText(wordToSearch);
-
     }
-
 
     //子线程中访问网络
     public void searchWord(String word) {
@@ -120,63 +119,110 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> esentList = wordmessage.getOrigList();
         ArrayList<String> csentList = wordmessage.getTransList();
         dictHandler.post(new RunnableInterface(nword, npse, npsa, nmeaning, esentList, csentList));
-        if (!npse.equals("") && !npsa.equals("")) {    //只有有音标时才去下载音乐
-            mp3player.playMusic(nword, mp3Player.ENGLISH_ACCENT, true, false);
-            mp3player.playMusic(nword, mp3Player.USA_ACCENT, true, false);
+    }
+
+    //开始搜索
+    public void startSearch() {
+        String str = inputText.getText().toString(); //查询输入
+        if (str == null || str.equals("")) //输入为空
+            return;
+        wordToSearch = str;
+        new ThreadSearchWord().start();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE); //用于控制显示或隐藏输入法面板的类
+        imm.hideSoftInputFromWindow(inputText.getWindowToken(), 0);
+    }
+
+    //返回按钮
+    public void backClick(View v) {
+        MainActivity.this.finish();
+    }
+
+    //删除输入
+    public void clearClick(View v) {
+        inputText.setText("");
+    }
+
+    //搜索
+    public void searchClick(View v) {
+        startSearch();
+    }
+
+    //输入框监听
+    class EditTextActionLis implements TextView.OnEditorActionListener {
+        @Override
+        public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
+            if (arg1 == EditorInfo.IME_ACTION_SEARCH || arg2 != null && arg2.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                startSearch();
+                return true;
+            }
+            return false;
         }
     }
 
+    //播放英音音频
+    public void eplayClick(View v) {
+        playMusic(wordToSearch, ENGLISH_ACCENT);
+    }
 
-    //设置监听
-    public void setOnClickLis() {
-        backButton.setOnClickListener(new BackClickLis());
-        clearButton.setOnClickListener(new ClearClickLis());
-        searchButton.setOnClickListener(new SearchClickLis());
-        ephonetic_btnButton.setOnClickListener(new PlayMusicClickLis(mp3Player.ENGLISH_ACCENT));
-        aphonetic_btnButton.setOnClickListener(new PlayMusicClickLis(mp3Player.USA_ACCENT));
-        // 添加单词到单词本
-        addWordlistButton.setOnClickListener(v -> {
-            String word = (String) wordText.getText();
-            if (word.isEmpty()) return;
-            Cursor cursor = notebookHelper.getReadableDatabase().rawQuery("Select * from Notebook where word = ?;",
-                    new String[]{word});
-            if (cursor.moveToNext()) {
-                cursor.close();
-                return;
-            }
-            notebookHelper.getWritableDatabase().execSQL(
-                    "insert into Notebook values (?);", new String[]{word}
-            );
-        });
-        // 打开单词本
-        openWordListButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, WordListActivity.class);
-            startActivityForResult(intent, 0);
-        });
+    //播放美音音频
+    public void aplayClick(View v) {
+        playMusic(wordToSearch, USA_ACCENT);
+    }
+
+    public void playMusic(String word , int accent){
+        if(word==null || word.length()<=0) //没有单词
+            return;
+        String pronUrl;
+        WordMessage w;
+        if(accent==ENGLISH_ACCENT){
+            pronUrl=dictionary.getProneUrl(word);
+        }else{
+            pronUrl=dictionary.getPronaUrl(word);
+        }
+        if(pronUrl==null ||pronUrl=="null"||pronUrl.length()<=0) //说明网络上也没有对应发音，退出
+            return;
+        mediaPlayer = MediaPlayer.create(this, Uri.parse(pronUrl));
+        mediaPlayer.start();
+    }
+
+    //添加单词到单词本
+    public void addClick(View v) {
+        String word = (String) wordText.getText();
+        if (word.isEmpty())
+            return;
+        Cursor cursor = notebookHelper.getReadableDatabase().rawQuery("Select * from Notebook where word = ?;", new String[]{word});
+        if (cursor.moveToNext()) {
+            Toast.makeText(MainActivity.this, "该单词已经在单词本中", Toast.LENGTH_SHORT).show();
+            cursor.close();
+            return;
+        }
+        notebookHelper.getWritableDatabase().execSQL("insert into Notebook values (?);", new String[]{word});
+        Toast.makeText(MainActivity.this, "成功添加至单词本", Toast.LENGTH_SHORT).show();
+    }
+
+    //打开单词本
+    public void openClick(View v) {
+        Intent intent = new Intent(MainActivity.this, WordListActivity.class);
+        startActivityForResult(intent, 0);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // 单词本中点击单词后，查询这个单词
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 0) {
-            if (resultCode == RESULT_OK) {
+            if (resultCode == 1) {
                 String word = data.getStringExtra("word");
                 inputText.setText(word);
-                searchButton.callOnClick();
+                searchButton.callOnClick(); //不用用户手动点击，直接触发View的点击事件
+            }
+
+            if (resultCode == 2) {
+                String deleteword = data.getStringExtra("delete");
+                inputText.setText(deleteword);
+                notebookHelper.getWritableDatabase().execSQL("delete from Notebook where word = ?;", new String[]{deleteword});
+                openWordListButton.callOnClick(); //不用用户手动点击，直接触发View的点击事件
             }
         }
-    }
-
-    //开始播放音频
-    protected void musicStart() {
-        super.onStart();
-        mp3player.isMusicPermitted = true;
-    }
-
-    //暂缓播放音频
-    protected void musicPause() {
-        mp3player.isMusicPermitted = false;
-        super.onPause();
     }
 
     //子线程中网络查词
@@ -216,10 +262,9 @@ public class MainActivity extends AppCompatActivity {
             aphoneticText.setText(npsa);
             meaningText.setText(nmeaning);
             if (esentList == null || csentList == null) {     //对链表为空进行防护
-                //sentence_listText.setText("");
                 return;
             }
-            int count = 0;
+            int count;
             if (esentList.size() <= csentList.size()) {
                 count = esentList.size();
             } else {
@@ -228,82 +273,12 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
             for (int i = 0; i < count; i++) {
                 HashMap<String, Object> map = new HashMap<String, Object>();
-                map.put("sentence", esentList.get(i) + "\n" + csentList.get(i));
+                map.put("sentence", esentList.get(i) + "\n" + csentList.get(i)); //把英文中文例句对应组合
                 list.add(map);
             }
-            SentenceListAdapter adapter = new SentenceListAdapter(MainActivity.this, R.layout.sentencelistitem, list, new String[]{"sentence"}, new int[]{R.id.text_dict_sentence_list_item});
+            SimpleAdapter adapter = new SimpleAdapter(MainActivity.this,list,R.layout.sentencelistitem,new String[]{"sentence"},new int[]{R.id.sentence_list_item});
             sentence_listText.setAdapter(adapter);
         }
-
     }
 
-    //以下是各个按钮接口
-    //返回
-    class BackClickLis implements View.OnClickListener {
-        @Override
-        public void onClick(View arg0) {
-            MainActivity.this.finish();
-        }
-    }
-
-    //删除输入
-    class ClearClickLis implements View.OnClickListener {
-        @Override
-        public void onClick(View arg0) {
-            inputText.setText("");
-        }
-
-    }
-
-    //搜索
-    class SearchClickLis implements View.OnClickListener {
-        @Override
-        public void onClick(View arg0) {
-            startSearch();
-        }
-    }
-
-    //播放音频
-    class PlayMusicClickLis implements View.OnClickListener {
-        public int accent = 0;
-
-        public PlayMusicClickLis(int accent) {
-            super();
-            this.accent = accent;
-        }
-
-        @Override
-        public void onClick(View arg0) {
-            mp3player.playMusic(wordToSearch, accent, false, true);
-        }
-    }
-
-//    class IBDictAddWordToGlossaryClickLis implements View.OnClickListener {
-
-
-//        }
-//    }
-
-
-    class EditTextActionLis implements TextView.OnEditorActionListener {
-        @Override
-        public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
-            if (arg1 == EditorInfo.IME_ACTION_SEARCH || arg2 != null && arg2.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                startSearch();
-                return true;
-            }
-            return false;
-        }
-    }
-
-    //开始搜索
-    public void startSearch() {
-        String str = inputText.getText().toString(); //查询输入
-        if (str == null || str.equals("")) //输入为空
-            return;
-        wordToSearch = str;
-        new ThreadSearchWord().start();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(inputText.getWindowToken(), 0);
-    }
 }
